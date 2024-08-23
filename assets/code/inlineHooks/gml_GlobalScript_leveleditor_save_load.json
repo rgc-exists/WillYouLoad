@@ -1,0 +1,17 @@
+{
+    "Script":"gml_GlobalScript_leveleditor_save_load",
+    "Hooks": [
+        {
+            "File": "inlineHooks/gml_GlobalScript_leveleditor_save_load_hook1.gml",
+            "Sig": [
+                "push.s \"_MODDED\"@3214",
+                "conv.s.v",
+                "push.v self.gameVersion",
+                "call.i string_ends_with(argc=2)"
+            ],
+            "Type": "replace",
+            "InArgs": []
+        }
+    ]
+}
+

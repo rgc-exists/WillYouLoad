@@ -1,0 +1,71 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <RootNamespace>willyouload</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <OutputPath>E:\SteamLibrary\steamapps\common\Will You Snail\gmsl\mods\WillYouLoad\</OutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="vendor\gmsl\gmsl-modapi\gmsl-modapi.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="**\*.cs" Exclude="vendor\**\*.*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="bin\**" />
+    <Compile Remove="obj\**" />
+    <Compile Remove="src\obj\**" />
+    <Compile Remove="vendor\gmsl\gmsl-modapi\bin\**" />
+    <Compile Remove="vendor\gmsl\vendor\undertalemodtool-src\UndertaleModLib\bin\**" />
+    <Compile Remove="vendor\gmsl\vendor\undertalemodtool-src\UndertaleModLib\obj\**" />
+    <EmbeddedResource Remove="bin\**" />
+    <EmbeddedResource Remove="obj\**" />
+    <EmbeddedResource Remove="src\obj\**" />
+    <EmbeddedResource Remove="vendor\gmsl\gmsl-modapi\bin\**" />
+    <EmbeddedResource Remove="vendor\gmsl\vendor\undertalemodtool-src\UndertaleModLib\bin\**" />
+    <EmbeddedResource Remove="vendor\gmsl\vendor\undertalemodtool-src\UndertaleModLib\obj\**" />
+    <None Remove="bin\**" />
+    <None Remove="obj\**" />
+    <None Remove="src\obj\**" />
+    <None Remove="vendor\gmsl\gmsl-modapi\bin\**" />
+    <None Remove="vendor\gmsl\vendor\undertalemodtool-src\UndertaleModLib\bin\**" />
+    <None Remove="vendor\gmsl\vendor\undertalemodtool-src\UndertaleModLib\obj\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
+  </PropertyGroup>
+
+  <Target Name="DeleteAssets" BeforeTargets="BeforeBuild">
+    <RemoveDir Directories="$(TargetDir)/code;$(TargetDir)/Shellworks_Assets" />
+  </Target>
+
+
+  <Target Name="CopyAssets" AfterTargets="AfterBuild">
+    <ItemGroup>
+      <Assets Include="assets/**/*.*" />
+    </ItemGroup>
+    <RemoveDir Directories="$(TargetDir)/assets" />
+    <Copy SourceFiles="@(Assets)" DestinationFolder="$(TargetDir)/assets/%(RecursiveDir)"
+      SkipUnchangedFiles="false" />
+  </Target>
+  <Target Name="CopyIncludes" AfterTargets="AfterBuild">
+    <ItemGroup>
+      <Assets Include="IncludedFiles/**/*.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(Assets)" DestinationFolder="$(TargetDir)/%(RecursiveDir)"
+      SkipUnchangedFiles="false" />
+  </Target>
+</Project>

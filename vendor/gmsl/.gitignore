@@ -1,0 +1,9 @@
+.vs/
+.vscode/
+.idea/
+build/
+out/
+vendor/
+bin/
+obj/
+*.sln

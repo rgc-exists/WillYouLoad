@@ -1,0 +1,11 @@
+{
+    "objects":[
+        {
+            "name":"obj_wall_original_lol",
+            "sprite":"spr_spr_wall_original",
+            "solid":true,
+            "code":[
+            ]
+        }
+    ]
+}
