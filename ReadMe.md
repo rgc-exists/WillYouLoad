@@ -1,6 +1,6 @@
 # Will You Load
 
-Will You Load is a mod loader that makes it easy to create custom objects for modded Will You Snail levels! It also supports hooks, and other features seen in traditional modding, including C# mods for advanced users.\
+Will You Load is a mod loader that makes it easy to create custom objects for modded Will You Snail levels! It also supports hooks, and other features seen in traditional modding, including C# mods for advanced users.
 
 _The name "Will You Load" is a working title. PLEASE tell me if you have any suggestions for better names._
 
