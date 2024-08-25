@@ -18,8 +18,9 @@ for (iprp = 0; iprp < ds_list_size(global.li_level_editor_database); iprp++)
         else
             show_message(("Unsupported color variable type:" + string(typeof(lvleditor_database_element.preview_color))))
     } else {
-        
-        if(is_real(lvleditor_database_element.preview_color)){
+        if(lvleditor_extraprops_element.color_mode == "Function"){
+            lvleditor_database_element.preview_color = script_execute(asset_get_index(lvleditor_extraprops_element.color))
+        } else if(is_real(lvleditor_database_element.preview_color)){
             lvleditor_database_element.preview_color = lvleditor_database_element.preview_color
         } else if(lvleditor_extraprops_element.color_mode == "Color Scheme"){
             if variable_instance_exists(obj_levelstyler, lvleditor_database_element.preview_color)
@@ -37,8 +38,6 @@ for (iprp = 0; iprp < ds_list_size(global.li_level_editor_database); iprp++)
         }
 
     }
-
-        
     if variable_struct_exists(lvleditor_database_element, "preview_layer")
     {
         if is_string(lvleditor_database_element.preview_layer){

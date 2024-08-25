@@ -6,5 +6,6 @@
     "objectCode": "objectcode",
     "functionHooks": "functionhooks",
     "inlineAssemblyHooks": "inlineassemblyhooks",
-    "inlineReplacements": "inlinereplacements"
+    "inlineReplacements": "inlinereplacements",
+    "codeHooks_late": "codehooks"
 }

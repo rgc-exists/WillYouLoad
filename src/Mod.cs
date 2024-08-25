@@ -41,7 +41,7 @@ public class WillYouLoad : IGMSLMod
 
         baseDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         assetPath = Path.Combine(baseDirectory, "assets");
-        modsPath = Path.Combine(appDataDirectory, "Community_Mods");
+        modsPath = Path.Combine(appDataDirectory, "WYL_Community_Mods");
 
 
 
@@ -101,16 +101,43 @@ public class WillYouLoad : IGMSLMod
                 string jsonFLocation = Path.GetDirectoryName(jsonF);
                 if (jsonData != null)
                 {
+                    if (jsonData.functions != null)
+                    {
+                        foreach (var function in jsonData.functions)
+                        {
+                            string functionPath = FindFileInOneOfTheseDirectories(
+                                new string[]{
+                                    modFolderPath
+                                },
+                                function.path.ToString()
+                            );
+                            string functionName = function.name.ToString();
+                            if (functionPath != null)
+                            {
+                                string code = File.ReadAllText(functionPath);
+                                MatchCollection matchList = Regex.Matches(code, @"(?<=argument)\d+");
+                                ushort argCount;
+                                if (matchList.Count > 0)
+                                    argCount = (ushort)(matchList.Cast<Match>().Select(match => ushort.Parse(match.Value)).ToList().Max() + 1);
+                                else
+                                    argCount = 0;
+                                data.CreateFunction(functionName, code, argCount);
+                            }
+                            else
+                            {
+                                Console.WriteLine("Could not find function path " + function.path.ToString() + " in json " + jsonF);
+                            }
+                        }
+                    }
                     if (jsonData.sprites != null)
                     {
                         foreach (var sprite in jsonData.sprites)
                         {
                             string spritePath = FindFileInOneOfTheseDirectories(
                                 new string[]{
-                                    jsonFLocation,
                                     modFolderPath
                                 },
-                                sprite.path
+                                sprite.path.ToString()
                             );
                             if (spritePath != null)
                             {
@@ -119,7 +146,7 @@ public class WillYouLoad : IGMSLMod
                             }
                             else
                             {
-                                Console.WriteLine("Could not find sprite path " + sprite.path + " in json " + jsonF);
+                                Console.WriteLine("Could not find sprite path " + sprite.path.ToString() + " in json " + jsonF);
                             }
                         }
                     }
@@ -129,10 +156,9 @@ public class WillYouLoad : IGMSLMod
                         {
                             string soundPath = FindFileInOneOfTheseDirectories(
                                 new string[]{
-                                    jsonFLocation,
                                     modFolderPath
                                 },
-                                sound.path
+                                sound.path.ToString()
                             );
 
                             scr_loadAssetsAsLocals_string += sound.name + " = global.wysModLoader_sound_" + sound.name + "\n";
@@ -142,7 +168,7 @@ public class WillYouLoad : IGMSLMod
                             }
                             else
                             {
-                                Console.WriteLine("Could not find sprite path " + sound.path + " in json " + jsonF);
+                                Console.WriteLine("Could not find sprite path " + sound.path.ToString() + " in json " + jsonF);
                             }
                         }
                     }
@@ -189,60 +215,107 @@ public class WillYouLoad : IGMSLMod
 
 
                             List<CodeData> codeDatas = new List<CodeData>();
+                            Dictionary<string, string> codeEvents = objData.code.ToObject<Dictionary<string, string>>();
 
-                            foreach (var code in objData.code)
+                            foreach (string codeName in codeEvents.Keys.ToList())
                             {
+                                var codeFileName = codeEvents[codeName];
                                 string codePath = FindFileInOneOfTheseDirectories(
                                     new string[]{
-                                        jsonFLocation,
                                         modFolderPath
                                     },
-                                    code.path
+                                    codeFileName
                                 );
 
-                                if (codePath != null)
-                                {
-                                    string codeFContents = File.ReadAllText(codePath);
-                                    var type = (EventType)Enum.Parse(typeof(EventType), code.Type);
-                                    uint subtype;
 
-                                    if (code.subtype == null) subtype = 0;
-                                    else
+                                string codeFContents = File.ReadAllText(codePath);
+                                EventType type = EventType.Create;
+                                uint subtype = 0;
+                                var validEventNames = Databases.EventNames.Keys.ToList();
+                                if (validEventNames.Contains(codeName.Trim(), StringComparer.OrdinalIgnoreCase))
+                                {
+                                    bool hasFound = false;
+                                    foreach (string eventName in validEventNames)
                                     {
-                                        try
+                                        if (eventName.ToLower() == codeName.ToLower())
                                         {
-                                            subtype = (uint)Enum.Parse(FindType("UndertaleModLib.Models.EventSubtype" + code.Type), code.Subtype);
-                                        }
-                                        catch
-                                        {
-                                            subtype = uint.Parse(code.Subtype);
+                                            var typesData = Databases.EventNames[eventName];
+                                            type = typesData.Item1;
+                                            subtype = typesData.Item2;
+                                            hasFound = true;
+                                            break;
                                         }
                                     }
 
-
-                                    UndertaleCode newCode = newGameObject.EventHandlerFor(type, subtype, data.Strings, data.Code, data.CodeLocals);
-
-                                    newCode.ReplaceGML(codeFContents, data);
-
-                                    codeDatas.Add(new CodeData
+                                    if (!hasFound)
                                     {
-                                        path = codePath,
-                                        undertaleCode = newCode,
-                                        eventType = type,
-                                        eventSubType = subtype
-                                    });
-
+                                        throw new Exception("The code name \"" + codeName + "\" was invalid, even though it was found in the EventNames database. THIS SHOULD NOT HAPPEN! Please report this bug!");
+                                    }
                                 }
                                 else
                                 {
-                                    Console.WriteLine("Could not find code file " + code.path + " in object " + objName);
+                                    string codeType = codeName.Split("_")[0];
+                                    string codeSubtype = "";
+                                    if (codeName.Split("_").Length > 1)
+                                    {
+                                        codeSubtype = codeName.Split("_")[1];
+                                    }
+
+                                    if (codePath != "")
+                                    {
+                                        type = (EventType)Enum.Parse(typeof(EventType), codeType);
+
+                                        if (codeSubtype == null) subtype = 0;
+                                        else
+                                        {
+                                            try
+                                            {
+                                                subtype = (uint)Enum.Parse(FindType("UndertaleModLib.Models.EventSubtype" + codeType), codeSubtype);
+                                            }
+                                            catch
+                                            {
+                                                try
+                                                {
+                                                    subtype = uint.Parse(codeSubtype);
+                                                }
+                                                catch
+                                                {
+                                                    throw new Exception("The code name \"" + codeName + "\" was invalid.");
+                                                }
+                                            }
+                                        }
+
+
+
+                                    }
+                                    else
+                                    {
+                                        Console.WriteLine("Could not find code file " + codeFileName + " for object " + objName);
+                                    }
+
+
                                 }
+
+                                UndertaleCode newCode = newGameObject.EventHandlerFor(type, subtype, data.Strings, data.Code, data.CodeLocals);
+
+                                newCode.ReplaceGML(codeFContents, data);
+
+                                CodeData code = new CodeData
+                                {
+                                    path = codePath,
+                                    undertaleCode = newCode
+                                };
+                                codeDatas.Add(code);
+
+
+
                             }
 
                             GameObjectData newObjData = new GameObjectData
                             {
                                 undertaleGameObject = newGameObject,
                                 spriteIsCustom = spriteIsCustom,
+                                sprite = spriteName != null ? spriteName : "",
                                 code = codeDatas
                             };
 
@@ -256,7 +329,20 @@ public class WillYouLoad : IGMSLMod
                 }
             }
 
-
+            string spriteInitStr = "#orig#()\n";
+            foreach (GameObjectData objData in gameObjects)
+            {
+                if (objData.spriteIsCustom)
+                {
+                    if (objData.sprite != "")
+                    {
+                        spriteInitStr += @$"
+object_set_sprite({objData.undertaleGameObject.Name.Content}, global.wysModLoader_sprite_{objData.sprite})
+";
+                    }
+                }
+            }
+            data.HookCode("gml_Object_obj_persistent_Create_0", spriteInitStr);
         }
 
         if (scr_loadAssetsAsLocals_string.Trim() == "")
@@ -265,20 +351,34 @@ public class WillYouLoad : IGMSLMod
         }
         data.CreateFunction("scr_wysModLoader_loadAssetsAsLocals", scr_loadAssetsAsLocals_string, 0);
 
-        foreach (GameObjectData obj in gameObjects)
+        foreach (UndertaleGameObject gameObject in data.GameObjects)
         {
-            UndertaleGameObject gameObject = obj.undertaleGameObject;
-
+            // TODO: Make parent check recursive in case of objects with parents that also have parents.
             string createCodeName = "gml_Object_" + gameObject.Name.Content + "_Create_0";
 
             if (data.Code.ByName(createCodeName) != null)
             {
-                data.HookCode(createCodeName, "gml_Script_scr_wysModLoader_loadAssetsAsLocals()\n\n#orig#()");
+                if (gameObject.Name.Content != "obj_persistent")
+                {
+                    data.HookCode(createCodeName, "gml_Script_scr_wysModLoader_loadAssetsAsLocals()\n\n#orig#()");
+                }
+                else
+                {
+                    data.HookCode(createCodeName, "#orig#()\ngml_Script_scr_wysModLoader_loadAssetsAsLocals()");
+                }
             }
             else
             {
-                gameObject.EventHandlerFor(EventType.Create, data)
-                .ReplaceGML("gml_Script_scr_wysModLoader_loadAssetsAsLocals()", data);
+                if (gameObject.ParentId != null && data.Code.ByName("gml_Object_" + gameObject.ParentId.Name.Content + "_Create_0") != null)
+                {
+                    gameObject.EventHandlerFor(EventType.Create, data)
+                    .ReplaceGML("gml_Script_scr_wysModLoader_loadAssetsAsLocals()\nevent_inherited()", data);
+                }
+                else
+                {
+                    gameObject.EventHandlerFor(EventType.Create, data)
+                    .ReplaceGML("gml_Script_scr_wysModLoader_loadAssetsAsLocals()", data);
+                }
             }
         }
     }
@@ -515,7 +615,6 @@ public class WillYouLoad : IGMSLMod
                 }
             }
         });
-
         handlers.Add("inlineassemblyhooks", (code, file) =>
         {
             if (file.EndsWith(".gml") || file.EndsWith(".asm")) return;
@@ -545,8 +644,9 @@ public class WillYouLoad : IGMSLMod
                 {
                     string assemblyStr_out = assembly_str.Replace(find, replace);
 
-                    assemblyStr_out = ReplaceAssetsWithIndexes_ASM(assembly_str);
-
+                    assemblyStr_out = ReplaceAssetsWithIndexes_ASM(assemblyStr_out);
+                    //Console.WriteLine(assemblyStr_out);
+                    //Console.ReadLine();
                     undertaleCode.Replace(Assembler.Assemble(assemblyStr_out, data));
                 }
                 else

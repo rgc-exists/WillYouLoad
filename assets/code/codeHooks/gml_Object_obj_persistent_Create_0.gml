@@ -1,11 +1,15 @@
+global.custom_loca_texts = {}
+
+
 #orig#()
+
 
 WYSmodLoader_name = "WillYouLoad"
 
 global.wysModLoader_path = "gmsl/mods/" + WYSmodLoader_name + "/"
 
 var possiblePath = ""
-var possibleModsPath = possiblePath + "Community_Mods/"
+var possibleModsPath = possiblePath + "WYL_Community_Mods/"
 if(directory_exists(possibleModsPath)){
 
     global.wysModLoader_modsPath = possibleModsPath

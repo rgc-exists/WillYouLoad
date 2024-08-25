@@ -1,5 +1,6 @@
 #orig#()
 
+
 if(variable_global_exists("map_extra_properties_database"))
     ds_map_clear(global.map_extra_properties_database)
 else
@@ -15,9 +16,9 @@ for(var o = 0; o < array_length(global.wysModLoader_editorObjDatas); o++){
     var color =  lvleditor_database_addition.preview_color
     if (color_mode == "Custom"){
 
+    } else if (color_mode == "Function"){
     } else if (color_mode == "Preset"){
     } else if (color_mode == "Color Scheme"){
-
     } else {
         show_message("Invalid color_mode for object " + lvleditor_database_addition.custom_tool_or_object_id + ": " + color_mode)
         color_mode = "Custom"

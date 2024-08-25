@@ -1,0 +1,33 @@
+{
+    "Script":"gml_Object_obj_level_editor_Draw_64",
+    "Hooks": [
+        {
+            "ToFind":"pop.v.v self.yyy\npushi.e 0\npop.v.i self.iii",
+            "ToReplace":"pop.v.v self.yyy\npushglb.v global.editorTool_objects_obj\npop.v.v self.iii",
+            "Type": "replace",
+            "IsExternalFile":false,
+            "File":""
+        },
+        {
+            "ToFind":"push.v self.iii\npushglb.v global.li_level_editor_database\ncall.i ds_list_size(argc=1)\ncmp.v.v LT",
+            "ToReplace":"push.v self.iii\ncall.i gml_Script_scr_is_within_cur_toolPage(argc=1)\nconv.v.b",
+            "Type": "replace",
+            "IsExternalFile":false,
+            "File":""
+        },
+        {
+            "ToFind":"pop.v.v self.quicktool_element\npush.v self.iii\npushi.e 17\nmod.i.v\npushi.e 0\ncmp.i.v EQ",
+            "ToReplace":"pop.v.v self.quicktool_element\ncall.i gml_Script_scr_current_obj_in_cur_page(argc=0)\npushi.e 17\nmod.i.v\npushi.e 0\ncmp.i.v EQ",
+            "Type": "replace",
+            "IsExternalFile":false,
+            "File":""
+        },
+        {
+            "ToFind":"push.v self.iii\npushi.e 0\ncmp.i.v NEQ",
+            "ToReplace":"call.i gml_Script_scr_current_obj_in_cur_page(argc=0)\npushi.e 0\ncmp.i.v NEQ",
+            "Type": "replace",
+            "IsExternalFile":false,
+            "File":""
+        }
+    ]
+}
