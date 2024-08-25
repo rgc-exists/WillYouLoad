@@ -7,7 +7,7 @@
     <Nullable>enable</Nullable>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <OutputPath>E:\SteamLibrary\steamapps\common\Will You Snail\gmsl\mods\WillYouLoad\</OutputPath>
+    <OutputPath>WillYouLoad/</OutputPath>
   </PropertyGroup>
 
   <ItemGroup>
@@ -46,6 +46,7 @@
   <PropertyGroup>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
 
   <Target Name="DeleteAssets" BeforeTargets="BeforeBuild">
