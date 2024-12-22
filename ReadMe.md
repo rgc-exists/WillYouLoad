@@ -1,3 +1,8 @@
+# THIS PROJECT HAS MOVED!
+## RGC Exists and OmegaMetor are currently working together to make a mod loader for ALL GameMaker games.
+***As such, "Will You Load" is going to become a mod for THAT mod loader, used to import objects into Will You Snail's editor.***  
+The new GitHub repository will go public at some point soon.
+
 # Will You Load
 
 Will You Load is a mod loader that makes it easy to create custom objects for modded Will You Snail levels! It also supports hooks, and other features seen in traditional modding, including C# mods for advanced users.
